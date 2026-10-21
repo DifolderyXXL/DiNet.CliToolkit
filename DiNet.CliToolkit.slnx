@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="DiNet.CliToolkit.Core/DiNet.CliToolkit.Core.csproj" />
+  <Project Path="DiNet.CliToolkit.Infrastructure/DiNet.CliToolkit.Infrastructure.csproj" />
+  <Project Path="DiNet.CliToolkit.Tests/DiNet.CliToolkit.Tests.csproj" />
+  <Project Path="DiNet.CliToolkit/DiNet.CliToolkit.csproj" />
+</Solution>
