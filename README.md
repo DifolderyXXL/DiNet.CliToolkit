@@ -25,6 +25,75 @@ Handlers are loosely coupled, easily testable, and bound via route words. You ge
 
 ---
 
+## How to use
+
+### 1. Define your Query
+Create a strongly typed `IQuery<TResponse>` to retrieve parameters from args.
+If you define a default value like `int ShingleSize = 4`, the value becomes optional. Otherwise, it is required and the command won't run if you don't pass that parameter.
+
+```csharp
+public record MyHashQuery(
+    [NotFlagged] string? RootPath = null,
+    int ShingleSize = 4,
+    int NumHashes = 128,
+    int ChunkStep = 16,
+    uint Seed = 123456789,
+    int Top = 5,
+    string? Ignore = null) : IQuery<bool>;
+```
+
+### 2. Implement your Handler
+Implement a handler as `IQueryHandler<MyHashQuery, bool>` for your query.
+
+```csharp
+class MyHashQueryHandler(IDocumentMatchService matchService) : IQueryHandler<MyHashQuery, bool>
+{
+    public async Task<bool> Handle(MyHashQuery query, CancellationToken ct)
+    {
+        var context = await matchService.ExtractMatchGroupsAsync(
+            query.RootPath, query.ShingleSize, query.NumHashes,
+            query.ChunkStep, query.Seed, query.Ignore, ct);
+
+        // ... some code
+
+        foreach (var score in topScores)
+        {
+            var fileA = context.Store.GetDocument(score.FileA)?.FullPath ?? "Unknown";
+            var fileB = context.Store.GetDocument(score.FileB)?.FullPath ?? "Unknown";
+            Console.WriteLine($"{fileA} <-> {fileB} : {score.Similarity * 100:F2}%");
+        }
+
+        return true;
+    }
+}
+```
+
+### 3. Setup `Program.cs`
+Setup your `Program.cs` to define services and handlers for the CLI.
+
+```csharp
+var builder = Host.CreateApplicationBuilder(args);
+
+builder.Services.AddScoped<IDocumentMatchService, DocumentMatchService>(); // Add required services
+
+builder.Services.AddCliToolkit(cli =>
+{
+    cli.UseKebabCaseFormatter(); // Define formatter for arguments
+
+    cli.Handlers
+        .IntroduceHelpCommand("help") // Optional help command, shows each available command with parameters
+        .Register<MyHashQueryHandler>("hashquery"); // Register our handler
+});
+
+using var host = builder.Build();
+
+// Next lines are the required code to handle our cli commands
+var cliApp = host.Services.GetRequiredService<CliApplication>();
+await cliApp.Route(args, CancellationToken.None);
+```
+
+---
+
 ## ⚙️ Installation
 
 ```bash
