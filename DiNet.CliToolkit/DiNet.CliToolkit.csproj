@@ -9,12 +9,13 @@
 	  <PackageOutputPath>./nupkg</PackageOutputPath>
 	  
 	  <PackageId>DiNet.CliToolkit</PackageId>
-	  <Version>0.0.2</Version>
+	  <Version>0.0.3</Version>
 	  <Authors>DifolderyXXL</Authors>
 	  <PackageReadmeFile>README.md</PackageReadmeFile>
 	  <Description>Cli toolkit for One-command-call. Supports native DI.</Description>
 	  <RepositoryUrl>https://github.com/DifolderyXXL/DiNet.CliToolkit</RepositoryUrl>
 	  <PackageTags>cli;tool;command</PackageTags>
+	  <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);IncludeReferencedProjectsInPackage</TargetsForTfmSpecificBuildOutput>
   </PropertyGroup>
 
 	<ItemGroup>
@@ -27,6 +28,12 @@
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.11" />
 	</ItemGroup>
+
+	<Target Name="IncludeReferencedProjectsInPackage" DependsOnTargets="ResolveReferences">
+		<ItemGroup>
+			<BuildOutputInPackage Include="@(ReferenceCopyLocalPaths->WithMetadataValue('ReferenceSourceTarget', 'ProjectReference'))" />
+		</ItemGroup>
+	</Target>
 
 	<ItemGroup>
 		<ProjectReference Include="..\DiNet.CliToolkit.Core\DiNet.CliToolkit.Core.csproj" PrivateAssets="all" />
