@@ -9,7 +9,7 @@
 	  <PackageOutputPath>./nupkg</PackageOutputPath>
 	  
 	  <PackageId>DiNet.CliToolkit</PackageId>
-	  <Version>0.0.1</Version>
+	  <Version>0.0.2</Version>
 	  <Authors>DifolderyXXL</Authors>
 	  <PackageReadmeFile>README.md</PackageReadmeFile>
 	  <Description>Cli toolkit for One-command-call. Supports native DI.</Description>
