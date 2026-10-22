@@ -30,7 +30,7 @@ jobs:
         run: dotnet test --configuration Release --no-build --verbosity normal
 
       - name: Pack as Global Tool
-        run: dotnet pack ./DiNet.CliToolkit/DiNet.CliToolkit.csproj --configuration Release --no-build --output ./nupkg
+        run: dotnet pack ./DiNet.CliToolkit/DiNet.CliToolkit.csproj --configuration Release --no-build -p:BuildProjectReferences=false --output ./nupkg
 
       - name: Upload NuGet package as artifact
         uses: actions/upload-artifact@v4
