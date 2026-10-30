@@ -1,4 +1,6 @@
 <Solution>
+  <Project Path="ConsoleApp1/ConsoleApp1.csproj" Id="71d83b8a-3949-4aa6-affa-4fe3cd660c97" />
+  <Project Path="DiNet.CliToolkit.Common/DiNet.CliToolkit.Common.csproj" Id="bb06a298-687b-46c0-bf04-0cf751d0c549" />
   <Project Path="DiNet.CliToolkit.Core/DiNet.CliToolkit.Core.csproj" />
   <Project Path="DiNet.CliToolkit.Infrastructure/DiNet.CliToolkit.Infrastructure.csproj" />
   <Project Path="DiNet.CliToolkit.Tests/DiNet.CliToolkit.Tests.csproj" />

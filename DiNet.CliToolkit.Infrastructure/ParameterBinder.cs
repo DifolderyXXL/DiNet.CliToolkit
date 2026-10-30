@@ -7,22 +7,22 @@ namespace DiNet.CliToolkit.Infrastructure;
 
 public class ParameterBinder(IParameterDeserializer serializer) : IParameterBinder
 {
-    public object?[] Bind(CommandCaller caller, CommandCallRequest request)
+    public object?[] Bind(CommandMetadata caller, CommandCallRequest request)
     {
         var parameters = new List<(object? value, int index)>();
 
-        if (caller.FirstUnflaggedParameter != null)
+        if (caller.Target != null)
         {
-            var isRequired = !(caller.FirstUnflaggedParameter.IsOptional);
+            var isRequired = !(caller.Target.IsOptional);
             if (isRequired && request.FirstUnflaggedArgument == null)
                 throw new IncorrectCommandStructureException();
 
             parameters.Add((serializer.Deserialize(new(
                 null,
                 request.FirstUnflaggedArgument
-                ), caller.FirstUnflaggedParameter.ParameterType), 0));
+                ), caller.Target.TargetType), 0));
         }
-
+        
         var additional = request.Parameters.Select(p =>
         {
             var parameterFromConstructor = caller.Parameters.FirstOrDefault(x => string.Equals(x.FormattedName, p.Name));

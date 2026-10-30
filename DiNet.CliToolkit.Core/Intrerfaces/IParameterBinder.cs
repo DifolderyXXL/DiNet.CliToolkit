@@ -5,5 +5,5 @@ namespace DiNet.CliToolkit.Core.Intrerfaces;
 
 public interface IParameterBinder
 {
-    object?[] Bind(CommandCaller caller, CommandCallRequest request);
+    object?[] Bind(CommandMetadata caller, CommandCallRequest request);
 }

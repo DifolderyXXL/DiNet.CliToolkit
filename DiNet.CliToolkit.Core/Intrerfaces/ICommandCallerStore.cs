@@ -4,6 +4,6 @@ namespace DiNet.CliToolkit.Core.Intrerfaces;
 
 public interface ICommandCallerStore
 {
-    public CommandCaller? Get<T>();
-    public CommandCaller? Get(Type type);
+    public CommandMetadata? Get<T>();
+    public CommandMetadata? Get(Type type);
 }
