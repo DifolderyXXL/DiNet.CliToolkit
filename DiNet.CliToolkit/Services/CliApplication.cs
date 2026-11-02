@@ -1,13 +1,16 @@
-﻿using DiNet.CliToolkit.Core.Intrerfaces;
-using DiNet.CliToolkit.Abstraction;
+﻿using DiNet.CliToolkit.Abstraction;
+using DiNet.CliToolkit.Core.Descriptors;
+using DiNet.CliToolkit.Core.Intrerfaces;
+using DiNet.CliToolkit.Services.Arguments;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DiNet.CliToolkit.Services;
 
 public class CliApplication(
-    ICommandHandlerFactory resolver,
     ICommandCallRequestBuilder commandCallRequestBuilder,
     IQueryHandlerResolver queryHandlerResolver,
     IPresenterResolver presenterResolver,
+    IServiceScopeFactory scopeFactory,
     CommandRouteRegistry routeRegistry)
 {
     public async Task Route(string[] args, CancellationToken ct)
@@ -19,8 +22,18 @@ public class CliApplication(
 
         var handler = queryHandlerResolver.Resolve(type);
 
+
         var queryArgs = args.Length > 1 ? args.AsSpan(1) : ReadOnlySpan<string>.Empty;
-        var query = resolver.Create(handler.QueryType, commandCallRequestBuilder.Build(queryArgs));
+        var flatArgs = commandCallRequestBuilder.Build(queryArgs);
+
+
+        using var scope = scopeFactory.CreateScope();
+        scope.ServiceProvider.GetRequiredService<IFlatArgumentsStore>().Set(flatArgs);
+
+
+        var assembler = scope.ServiceProvider.GetRequiredService<IObjectAssembler>();
+        var query = assembler.CreateRoot(handler.QueryType);
+
 
         var response = await handler.HandleAsync(query, ct);
 

@@ -20,7 +20,8 @@ public class ObjectDescriptor : IObjectDescriptor
 
         Properties = [.. type
             .GetProperties(BindingFlags.Public | BindingFlags.Instance)
-            .Where(p => p.GetIndexParameters().Length == 0)];
+            .Where(p => p.GetIndexParameters().Length == 0)
+            .Where(p => p.CanWrite)];
     }
 }
 

@@ -1,10 +1,12 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using DiNet.CliToolkit.Abstraction;
+using DiNet.CliToolkit.Core;
+using DiNet.CliToolkit.Core.Descriptors;
 using DiNet.CliToolkit.Core.Intrerfaces;
 using DiNet.CliToolkit.Infrastructure;
 using DiNet.CliToolkit.Infrastructure.Formatters;
-using DiNet.CliToolkit.Abstraction;
-using DiNet.CliToolkit.Services;
+using DiNet.CliToolkit.Services.Arguments;
 using DiNet.CliToolkit.Services.HelpHandler;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DiNet.CliToolkit.Services;
 
@@ -72,16 +74,38 @@ public class CliToolkitBuilder
         var formatterType = _formatterType ?? typeof(DefaultNameFormatter);
         _services.AddSingleton(typeof(INameFormatter), formatterType);
 
-        _services.AddSingleton<ICommandCallerStore, ReflectionCommandCallerStore>();
         _services.AddSingleton<IParameterDeserializer, ParameterDeserializer>();
-        _services.AddSingleton<IParameterBinder, ParameterBinder>();
         _services.AddSingleton<ICommandCallRequestBuilder, StrictCommandCallRequestBuilder>();
 
-        _services.AddTransient<ICommandHandlerFactory, CommandHandlerFactory>();
         _services.AddTransient<IQueryHandlerResolver, DefaultQueryHandlerResolver>();
         _services.AddTransient<IPresenterResolver, PresenterResolver>();
 
+
+        _services.AddSingleton<IObjectDescriptorFactory, ObjectDescriptorFactory>();
+        _services.AddSingleton<IObjectAssembler, ObjectAssembler>();
+        _services.AddSingleton<IConstructorInvoker, ConstructorInvoker>();
+        _services.AddSingleton<IDescriptorContext, DescriptorContext>();
+        _services.AddSingleton<IPropertyInjector, PropertyInjector>();
+        _services.AddSingleton<IComplexTypeClassifier, CommandTypeClassifier>();
+        _services.AddSingleton<IFlatArgumentsFactory, FlatArgumentsFactory>();
+
+
+        _services.AddScoped<FlatArgumentsStore>();
+        _services.AddScoped<IFlatArguments>(sp => sp.GetRequiredService<FlatArgumentsStore>());
+        _services.AddScoped<IFlatArgumentsStore>(sp => sp.GetRequiredService<FlatArgumentsStore>());
+
+
+        AddArguments();
+
+
         _services.AddTransient<CliApplication>();
+    }
+
+    private void AddArguments()
+    {
+        _services.AddScoped<FlatArgumentsStore>();
+        _services.AddScoped<IFlatArguments>(sp => sp.GetRequiredService<FlatArgumentsStore>());
+        _services.AddScoped<IFlatArgumentsStore>(sp => sp.GetRequiredService<FlatArgumentsStore>());
     }
 }
 
