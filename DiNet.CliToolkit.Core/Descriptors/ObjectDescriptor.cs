@@ -22,41 +22,6 @@ public class ObjectDescriptor : IObjectDescriptor
             .GetProperties(BindingFlags.Public | BindingFlags.Instance)
             .Where(p => p.GetIndexParameters().Length == 0)
             .Where(p => p.CanWrite)];
+
     }
 }
-
-/*
- 
-FlatQuery
-- Unflagged parameter
-- [name, val]
-
-
-IContext
-    => FlatQuery
-
-InitializeObject
-    InitializeConstructor
-    InitialierProperties
-    => loop
- 
-// metadataContext
-
-IDescriptorContext
-    => ...
-
-ObjDescriptor
-    Constructor
-    Properties
-    => loop
-
-RootObjectDescriptor : ObjDescriptor
-    FirstUnflagged
-
-
-* => O(SEGMENT) => *
-
-
-
- */
-

@@ -18,7 +18,7 @@ public class PropertyInjector(
     {
         if (descriptor is IRootObjectDescriptor { UnflaggedProperty: { } unflagged } objDescriptor)
         {
-            SetProperty(instance, unflagged, 
+            SetProperty(instance, unflagged,
                 arguments.UnflaggedArgument ?? arguments.GetArgument(objDescriptor.UnflaggedProperty.Name),
                 createComplex);
         }
@@ -35,43 +35,20 @@ public class PropertyInjector(
             throw new InvalidOperationException(
                 $"Property '{property.Name}' on '{property.DeclaringType?.Name}' is not writable.");
 
+        if (arg is not null)
+        {
+            var value = deserializer.Deserialize(arg, property.PropertyType);
+            if (value is not null) { property.SetValue(instance, value); return; }
+        }
 
         if (classifier.IsComplex(property.PropertyType))
         {
-            if (arg is not null)
-            {
-                var converted = deserializer.Deserialize(arg, property.PropertyType);
-                if (converted is not null)
-                {
-                    property.SetValue(instance, converted);
-                    return;
-                }
-            }
-
-            try
-            {
-                property.SetValue(instance, createComplex(property.PropertyType));
-            }
-            catch (Exception ex) when (!property.PropertyType.IsValueType)
-            {
-                _ = ex;
-                return;
-            }
-            catch (Exception ex)
-            {
-                throw new InvalidOperationException(
-                    $"Failed to create an instance of '{property.PropertyType.Name}' " +
-                    $"for property '{property.Name}'.",
-                    ex);
-            }
-            return;
+            property.SetValue(instance, createComplex(property.PropertyType));
         }
 
-        if (arg is null)
-            return;
-
-        var value = deserializer.Deserialize(arg, property.PropertyType);
-        if (value is not null)
-            property.SetValue(instance, value);
+        if (property.IsDefined(typeof(System.Runtime.CompilerServices.RequiredMemberAttribute), inherit: false))
+            throw new InvalidOperationException(
+                $"Required property '{property.Name}' on '{property.DeclaringType?.Name}' " +
+                $"was not provided on the command line.");
     }
 }

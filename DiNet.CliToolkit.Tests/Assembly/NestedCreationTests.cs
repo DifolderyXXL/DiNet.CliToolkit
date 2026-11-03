@@ -19,7 +19,7 @@ public class NestedCreationTests(AssemblerFixture f) : IClassFixture<AssemblerFi
     {
         var result = f.CreateAssembler(f.Args()).CreateRoot(rootType);
         var nested = rootType.GetProperty("Nested")!.GetValue(result) as Nested;
-        Assert.Null(nested);
+        Assert.NotNull(nested);
     }
 
     [Theory]

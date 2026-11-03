@@ -38,39 +38,3 @@ public class RootObjectDescriptor : IRootObjectDescriptor
         Properties = [.. parameters.Where(x => x != notFlagged)];
     }
 }
-
-/*
- 
-FlatQuery
-- Unflagged parameter
-- [name, val]
-
-
-IContext
-    => FlatQuery
-
-InitializeObject
-    InitializeConstructor
-    InitialierProperties
-    => loop
- 
-// metadataContext
-
-IDescriptorContext
-    => ...
-
-ObjDescriptor
-    Constructor
-    Properties
-    => loop
-
-RootObjectDescriptor : ObjDescriptor
-    FirstUnflagged
-
-
-* => O(SEGMENT) => *
-
-
-
- */
-
