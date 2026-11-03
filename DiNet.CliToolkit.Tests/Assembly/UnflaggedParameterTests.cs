@@ -21,6 +21,20 @@ public class WithUnflaggedConstructorParameter
     public string Name { get; }
 }
 
+public class Node<T> 
+{
+    public T Value { get; set; }
+}
+
+public class SingleNested
+{
+    public Node<int> IntValue { get; set; }
+}
+public class DoubleNestedGenericOject
+{
+    public SingleNested Single { get; set; }
+}
+
 public class UnflaggedParameterTests(AssemblerFixture f) : IClassFixture<AssemblerFixture>
 {
 
@@ -58,5 +72,13 @@ public class UnflaggedParameterTests(AssemblerFixture f) : IClassFixture<Assembl
         var assembler = f.CreateAssembler(f.Args(null, new ConsoleParameter("name", "Bob")));
         var result = (WithUnflaggedConstructorParameter)assembler.CreateRoot(typeof(WithUnflaggedConstructorParameter));
         Assert.Equal("Bob", result.Name);
+    }
+
+    [Fact]
+    public void CreateRoot_UnflaggedProperty_ConstructorParameter_DoubleNestedGenericOject()
+    {
+        var assembler = f.CreateAssembler(f.Args(null, new ConsoleParameter("Value", "42")));
+        var result = (DoubleNestedGenericOject)assembler.CreateRoot(typeof(DoubleNestedGenericOject));
+        Assert.Equal(42, result.Single.IntValue.Value);
     }
 }

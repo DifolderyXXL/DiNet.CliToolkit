@@ -1,10 +1,10 @@
-﻿using System.ComponentModel;
-using DiNet.CliToolkit.Core.Exceptions;
+﻿using DiNet.CliToolkit.Core.Exceptions;
 using DiNet.CliToolkit.Core.Intrerfaces;
 
 namespace DiNet.CliToolkit.Infrastructure;
 
-public class ParameterDeserializer : IParameterDeserializer
+
+public class ParameterDeserializer(IReadOnlyList<IValueConverter> converters) : IParameterDeserializer
 {
     public object? Deserialize(ParameterSource source, Type targetType)
     {
@@ -25,24 +25,20 @@ public class ParameterDeserializer : IParameterDeserializer
             throw new ArgumentException($"Value is null but target type '{targetType.Name}' does not allow null.");
         }
 
-        try
+        foreach (var converter in converters)
         {
-            var converter = TypeDescriptor.GetConverter(targetType);
-            if (converter.CanConvertFrom(typeof(string)))
-            {
-                return converter.ConvertFromString(source.Value);
-            }
-            else
-            {
-                // fallback
-                return Convert.ChangeType(source.Value, targetType);
-            }
-        }
-        catch (Exception ex)
-        {
+            if (!converter.CanConvert(targetType)) continue;
+
+            if (converter.TryConvert(source.Value, targetType, out var result))
+                return result;
+
             throw new InvalidOperationException(
-                $"Cannot convert value '{source.Value}' to type '{targetType.Name}'.", ex);
+                $"Cannot convert value '{source.Value}' to type '{targetType.Name}' " +
+                $"using {converter.GetType().Name}.");
         }
+
+        throw new NotSupportedException(
+            $"No converter registered for type '{targetType.Name}'.");
     }
 
     private static bool IsNullableType(Type type)

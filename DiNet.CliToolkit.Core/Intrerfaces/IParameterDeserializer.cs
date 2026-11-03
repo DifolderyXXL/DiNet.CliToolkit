@@ -1,6 +1,4 @@
-﻿using DiNet.CliToolkit.Core.Intrerfaces;
-
-namespace DiNet.CliToolkit.Core.Intrerfaces;
+﻿namespace DiNet.CliToolkit.Core.Intrerfaces;
 
 public interface IParameterDeserializer
 {

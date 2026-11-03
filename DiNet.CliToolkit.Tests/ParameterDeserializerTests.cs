@@ -1,12 +1,14 @@
 ﻿using DiNet.CliToolkit.Core.Exceptions;
 using DiNet.CliToolkit.Core.Intrerfaces;
 using DiNet.CliToolkit.Infrastructure;
+using DiNet.CliToolkit.Infrastructure.TypeConverters;
 
 namespace DiNet.CliToolkit.Tests;
 
+
 public class ParameterDeserializerTests
 {
-    private readonly ParameterDeserializer _deserializer = new();
+    private readonly ParameterDeserializer _deserializer = new([new TypeConverterAdapter(), new ParsableTypeConverterAdapter()]);
 
 
     [Fact]
@@ -70,5 +72,14 @@ public class ParameterDeserializerTests
     {
         var result = _deserializer.Deserialize(new ParameterSource(null, null), targetType);
         Assert.Null(result);
+    }
+
+    [Theory]
+    [InlineData(typeof(GenericConvertable<int>), "5", 5)]
+    public void FromString_ToCustomParsable(Type targetType, string source, object value)
+    {
+        var result = _deserializer.Deserialize(new ParameterSource(null, source), targetType);
+        var inst = targetType.GetProperty("Value").GetValue(result);
+        Assert.Equal(value, inst);
     }
 }

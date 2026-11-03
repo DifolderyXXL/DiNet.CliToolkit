@@ -4,6 +4,7 @@ using DiNet.CliToolkit.Core.Intrerfaces;
 using DiNet.CliToolkit.Core.Models;
 using DiNet.CliToolkit.Infrastructure;
 using DiNet.CliToolkit.Infrastructure.Formatters;
+using DiNet.CliToolkit.Infrastructure.TypeConverters;
 
 namespace DiNet.CliToolkit.Tests.Fixtures;
 
@@ -13,7 +14,7 @@ public sealed class AssemblerFixture
     public IObjectAssembler CreateAssembler(IFlatArguments args)
     {
         var classifier = new CommandTypeClassifier();
-        var deserializer = new ParameterDeserializer();
+        var deserializer = new ParameterDeserializer([new TypeConverterAdapter()]);
         var descriptorContext = new DescriptorContext(new ObjectDescriptorFactory());
         return new ObjectAssembler(
             descriptorContext,

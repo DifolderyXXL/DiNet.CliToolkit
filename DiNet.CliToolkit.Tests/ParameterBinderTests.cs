@@ -6,6 +6,7 @@ using DiNet.CliToolkit.Core.Intrerfaces;
 using DiNet.CliToolkit.Core.Models;
 using DiNet.CliToolkit.Infrastructure;
 using DiNet.CliToolkit.Infrastructure.Formatters;
+using DiNet.CliToolkit.Infrastructure.TypeConverters;
 using DiNet.CliToolkit.Services.Arguments;
 using DiNet.CliToolkit.Tests;
 
@@ -140,7 +141,7 @@ public class ObjectAssemblerTests
     private static IObjectAssembler CreateAssembler(IFlatArguments args)
     {
         var classifier = new CommandTypeClassifier();
-        var deserializer = new ParameterDeserializer();
+        var deserializer = new ParameterDeserializer([new TypeConverterAdapter()]);
         var descriptorContext = new DescriptorContext(new ObjectDescriptorFactory());
 
         var injector = new PropertyInjector(deserializer, args, classifier);
