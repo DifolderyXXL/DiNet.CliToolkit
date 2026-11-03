@@ -1,3 +1,4 @@
+using DiNet.CliToolkit.Core.Descriptors;
 using DiNet.CliToolkit.Core.Exceptions;
 using DiNet.CliToolkit.Core.Intrerfaces;
 using DiNet.CliToolkit.Core.Models;
@@ -15,9 +16,9 @@ namespace DiNet.CliToolkit.Infrastructure;
 /// - Unexpected positional tokens and duplicate flags are rejected with an exception
 ///   instead of being silently dropped.
 /// </remarks>
-public class StrictCommandCallRequestBuilder : ICommandCallRequestBuilder
+public class StrictCommandCallRequestBuilder(IFlatArgumentsFactory factory) : ICommandCallRequestBuilder
 {
-    public CommandCallRequest Build(ReadOnlySpan<string> args)
+    public IFlatArguments Build(ReadOnlySpan<string> args)
     {
         string? firstUnflagged = null;
         var parameters = new List<ConsoleParameter>();
@@ -63,7 +64,7 @@ public class StrictCommandCallRequestBuilder : ICommandCallRequestBuilder
             parameters.Add(new ConsoleParameter(name, value));
         }
 
-        return new CommandCallRequest(firstUnflagged, parameters.ToArray());
+        return factory.Create(firstUnflagged, parameters);
     }
 
     private static bool IsFlag(string token)

@@ -9,7 +9,7 @@
 	  <PackageOutputPath>./nupkg</PackageOutputPath>
 	  
 	  <PackageId>DiNet.CliToolkit</PackageId>
-	  <Version>0.0.3</Version>
+	  <Version>0.0.4</Version>
 	  <Authors>DifolderyXXL</Authors>
 	  <PackageReadmeFile>README.md</PackageReadmeFile>
 	  <Description>Cli toolkit for One-command-call. Supports native DI.</Description>
@@ -31,7 +31,7 @@
 
 	<Target Name="IncludeReferencedProjectsInPackage" DependsOnTargets="ResolveReferences">
 		<ItemGroup>
-			<BuildOutputInPackage Include="@(ReferenceCopyLocalPaths->WithMetadataValue('ReferenceSourceTarget', 'ProjectReference'))" />
+			<BuildOutputInPackage Include="@(ReferenceCopyLocalPaths-&gt;WithMetadataValue('ReferenceSourceTarget', 'ProjectReference'))" />
 		</ItemGroup>
 	</Target>
 

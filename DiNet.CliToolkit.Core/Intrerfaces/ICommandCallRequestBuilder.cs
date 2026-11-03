@@ -1,8 +1,8 @@
-﻿using DiNet.CliToolkit.Core.Models;
+﻿using DiNet.CliToolkit.Core.Descriptors;
 
 namespace DiNet.CliToolkit.Core.Intrerfaces;
 
 public interface ICommandCallRequestBuilder
 {
-    public CommandCallRequest Build(ReadOnlySpan<string> args);
+    public IFlatArguments Build(ReadOnlySpan<string> args);
 }
