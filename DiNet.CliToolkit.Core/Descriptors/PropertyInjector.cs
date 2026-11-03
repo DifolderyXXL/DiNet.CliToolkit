@@ -16,9 +16,11 @@ public class PropertyInjector(
 {
     public void Inject(object instance, IObjectDescriptor<IConstructorDescriptor> descriptor, Func<Type, object> createComplex)
     {
-        if (descriptor is IRootObjectDescriptor { UnflaggedProperty: { } unflagged })
+        if (descriptor is IRootObjectDescriptor { UnflaggedProperty: { } unflagged } objDescriptor)
         {
-            SetProperty(instance, unflagged, arguments.UnflaggedArgument, createComplex);
+            SetProperty(instance, unflagged, 
+                arguments.UnflaggedArgument ?? arguments.GetArgument(objDescriptor.UnflaggedProperty.Name),
+                createComplex);
         }
 
         foreach (var property in descriptor.Properties)
