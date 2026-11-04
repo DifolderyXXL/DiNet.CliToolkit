@@ -22,6 +22,8 @@ Handlers are loosely coupled, easily testable, and bound via route words. You ge
 * **Kebab-Case Formatting**: Built-in support for converting C# PascalCase properties to standard CLI kebab-case flags (e.g., `--shingle-size`).
 * **Positional Arguments**: Use the `[NotFlagged]` attribute to pass primary arguments (like file paths) without explicit flag switches.
 * **Boolean Switch Parsing**: Flags without explicit value bindings (e.g., `--verbose`) automatically evaluate to `true` when supplied, and `false` when omitted.
+* **Nested Objects & Command Reuse**: Command records can embed nested strongly-typed objects, letting you extract shared parameter groups and reuse them across multiple commands.
+* **Extensible Type Conversion**: Any type implementing `IParsable<T>` is supported out of the box, and you can plug in your own converters by registering an `IValueConverter` in DI.
 
 ---
 
@@ -40,6 +42,46 @@ public record MyHashQuery(
     uint Seed = 123456789,
     int Top = 5,
     string? Ignore = null) : IQuery<bool>;
+```
+
+### 1.1. Nested Objects (Command Reuse)
+Group common parameters into a nested record and reuse it across several commands — arguments bind to it as if they were declared flat on the root query.
+
+```csharp
+public record Nested(int Value, string Label);
+
+public record WithComplexParameter(Nested? Nested = null) : IQuery<bool>;
+
+// CLI:  with-complex-parameter --value 42 --label Hello
+//       -> Nested.Value == 42, Nested.Label == "Hello"
+```
+
+### 1.2. Custom Converters
+Types implementing `IParsable<T>` (e.g. `GenericConvertable<int>` below) are parsed automatically. For arbitrary types, implement `IValueConverter` and register it in DI — the toolkit picks it up via constructor injection.
+
+```csharp
+public class GenericConvertable<T> : IParsable<GenericConvertable<T>> where T : IParsable<T>
+{
+    public T Value { get; }
+    public GenericConvertable(T value) => Value = value;
+
+    public static GenericConvertable<T> Parse(string s, IFormatProvider? p) => new(T.Parse(s, p));
+
+    public static bool TryParse(string? s, IFormatProvider? p, out GenericConvertable<T>? r)
+    {
+        if (T.TryParse(s, p, out var v)) { r = new(v); return true; }
+        r = null; return false;
+    }
+}
+
+// Or a fully custom converter
+public class MyConverter : IValueConverter
+{
+    public bool CanConvert(Type targetType) {...};
+    public bool TryConvert(string value, Type targetType, out object? result) {...};
+}
+
+builder.Services.AddSingleton<IValueConverter, MyConverter>();
 ```
 
 ### 2. Implement your Handler
@@ -98,3 +140,4 @@ await cliApp.Route(args, CancellationToken.None);
 
 ```bash
 dotnet add package DiNet.CliToolkit
+```
