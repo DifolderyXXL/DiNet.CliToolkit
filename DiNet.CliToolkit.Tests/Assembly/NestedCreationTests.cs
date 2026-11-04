@@ -4,7 +4,6 @@ using DiNet.CliToolkit.Tests.Models;
 
 namespace DiNet.CliToolkit.Tests.Assembly;
 
-
 public class NestedCreationTests(AssemblerFixture f) : IClassFixture<AssemblerFixture>
 {
     public static TheoryData<Type> ComplexRootTypes =>
@@ -37,4 +36,3 @@ public class NestedCreationTests(AssemblerFixture f) : IClassFixture<AssemblerFi
         Assert.Equal("Hello", nested.Label);
     }
 }
-

@@ -4,8 +4,9 @@ using DiNet.CliToolkit.Core.Intrerfaces;
 namespace DiNet.CliToolkit.Infrastructure;
 
 
-public class ParameterDeserializer(IReadOnlyList<IValueConverter> converters) : IParameterDeserializer
+public class ParameterDeserializer(IEnumerable<IValueConverter> converters) : IParameterDeserializer
 {
+    private readonly IReadOnlyList<IValueConverter> _converters = converters.ToList();
     public object? Deserialize(ParameterSource source, Type targetType)
     {
         if (source.Name != null && source.Value == null) // flag (--flag)
@@ -25,7 +26,7 @@ public class ParameterDeserializer(IReadOnlyList<IValueConverter> converters) : 
             throw new ArgumentException($"Value is null but target type '{targetType.Name}' does not allow null.");
         }
 
-        foreach (var converter in converters)
+        foreach (var converter in _converters)
         {
             if (!converter.CanConvert(targetType)) continue;
 
