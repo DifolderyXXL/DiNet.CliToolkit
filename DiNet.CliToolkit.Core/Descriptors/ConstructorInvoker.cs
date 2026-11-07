@@ -1,4 +1,5 @@
-﻿using DiNet.CliToolkit.Core.Exceptions;
+﻿using DiNet.CliToolkit.Core.Attributes;
+using DiNet.CliToolkit.Core.Exceptions;
 using DiNet.CliToolkit.Core.Intrerfaces;
 using System.Reflection;
 
@@ -48,6 +49,8 @@ public class ConstructorInvoker(
 
     private object GetParameter(ParameterSource? arg, ParameterInfo info, Func<Type, object> createComplex)
     {
+        bool isPropertyEndValue = info.IsDefined(typeof(LeafAttribute), inherit: false);
+
         if (arg is not null)
         {
             var value = deserializer.Deserialize(arg, info.ParameterType);
@@ -55,7 +58,7 @@ public class ConstructorInvoker(
                 return value;
         }
 
-        if (classifier.IsComplex(info.ParameterType))
+        if (!isPropertyEndValue && classifier.IsComplex(info.ParameterType))
         {
             try
             {

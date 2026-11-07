@@ -56,7 +56,27 @@ public record WithComplexParameter(Nested? Nested = null) : IQuery<bool>;
 //       -> Nested.Value == 42, Nested.Label == "Hello"
 ```
 
-### 1.2. Custom Converters
+### 1.2. Leaf attribute for complex convertable types
+Attributes help the binder to identify the leaf object that has a converter and should not be built from the inside.
+
+```csharp
+public abstract record RootBaseQuery : IQuery<bool>
+{
+    [Leaf]
+    public RegexValue? OnlyExtensions { get; set; } = null;
+    // public class RegexValue : IParsable<RegexValue> {...} --- Converter is defined by default in .AddCliToolkit
+
+    // RootBaseQuery([Leaf] RegexValue? OnlyExtensions = null){...} or defined in constructor as well
+}
+
+
+// CLI:  --only-extensions .*
+//       -> RootBaseQuery.OnlyExtensions = RegexValue(".*")
+```
+
+
+
+### 1.3. Custom Converters
 Types implementing `IParsable<T>` (e.g. `GenericConvertable<int>` below) are parsed automatically. For arbitrary types, implement `IValueConverter` and register it in DI — the toolkit picks it up via constructor injection.
 
 ```csharp

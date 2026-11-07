@@ -14,7 +14,7 @@ public sealed class AssemblerFixture
     public IObjectAssembler CreateAssembler(IFlatArguments args)
     {
         var classifier = new CommandTypeClassifier();
-        var deserializer = new ParameterDeserializer([new TypeConverterAdapter()]);
+        var deserializer = new ParameterDeserializer([new TypeConverterAdapter(), new ParsableTypeConverterAdapter()]);
         var descriptorContext = new DescriptorContext(new ObjectDescriptorFactory());
         return new ObjectAssembler(
             descriptorContext,

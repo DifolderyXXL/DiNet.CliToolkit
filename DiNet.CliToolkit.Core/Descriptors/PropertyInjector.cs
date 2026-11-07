@@ -1,4 +1,5 @@
-﻿using DiNet.CliToolkit.Core.Exceptions;
+﻿using DiNet.CliToolkit.Core.Attributes;
+using DiNet.CliToolkit.Core.Exceptions;
 using DiNet.CliToolkit.Core.Intrerfaces;
 using System.Reflection;
 
@@ -35,13 +36,15 @@ public class PropertyInjector(
             throw new InvalidOperationException(
                 $"Property '{property.Name}' on '{property.DeclaringType?.Name}' is not writable.");
 
+        bool isPropertyEndValue = property.IsDefined(typeof(LeafAttribute), inherit: false);
+
         if (arg is not null)
         {
             var value = deserializer.Deserialize(arg, property.PropertyType);
             if (value is not null) { property.SetValue(instance, value); return; }
         }
 
-        if (classifier.IsComplex(property.PropertyType))
+        if (!isPropertyEndValue && classifier.IsComplex(property.PropertyType))
         {
             property.SetValue(instance, createComplex(property.PropertyType));
         }
