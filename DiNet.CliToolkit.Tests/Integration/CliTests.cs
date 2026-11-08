@@ -12,13 +12,23 @@ public class CliTests : IClassFixture<CliIntegrationFixture>
     }
 
     [Fact]
-    public async Task HelpCommand_Should_Print_Available_Commands()
+    public async Task TestHandler_Prints_Provided_Value()
     {
         // Act
-        var output = await _fixture.RunCliAsync(["test", "--value", "TestValue"]);
+        var output = await _fixture.RunCliAsync(["test", "--r-value", "TestValue"]);
 
         // Assert
         Assert.Contains("TestValue", output);
     }
 
+    [Fact]
+    public async Task HelpCommand_Should_Print_Available_Commands()
+    {
+        // Act
+        var output = await _fixture.RunCliAsync(["help"]);
+
+        // Assert
+        Assert.DoesNotContain("nested", output);
+        Assert.Contains("test", output);
+    }
 }

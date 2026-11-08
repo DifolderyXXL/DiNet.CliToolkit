@@ -81,6 +81,7 @@ public class CliToolkitBuilder
         _services.AddTransient<IQueryHandlerResolver, DefaultQueryHandlerResolver>();
         _services.AddTransient<IPresenterResolver, PresenterResolver>();
 
+        _services.AddScoped<IRootDescriptorResolver, RootDescriptorResolver>();
 
         _services.AddScoped<IObjectDescriptorFactory, ObjectDescriptorFactory>();
         _services.AddScoped<IObjectAssembler, ObjectAssembler>();

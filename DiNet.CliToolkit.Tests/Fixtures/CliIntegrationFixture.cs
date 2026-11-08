@@ -1,17 +1,21 @@
 ﻿using DiNet.CliToolkit.Abstraction;
 using DiNet.CliToolkit.Services;
+using DiNet.CliToolkit.Tests.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 namespace DiNet.CliToolkit.Tests.Fixtures;
 
 
-public record TestObject(string Value) : IQuery<bool>;
+public record TestObject(string RValue) : IQuery<bool>
+{
+    public Nested Nested { get; set; } = null;
+}
 public class TestHandler : IQueryHandler<TestObject, bool>
 {
     public async Task<bool> Handle(TestObject query, CancellationToken ct)
     {
-        Console.WriteLine(query.Value);
+        Console.WriteLine(query.RValue);
         return true;
     }
 }
@@ -27,6 +31,7 @@ public class CliIntegrationFixture
             cli.UseKebabCaseFormatter();
 
             cli.Handlers
+                .IntroduceHelpCommand("help")
                 .Register<TestHandler>("test");
         });
 

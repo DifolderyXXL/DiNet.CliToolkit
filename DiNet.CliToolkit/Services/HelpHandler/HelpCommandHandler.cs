@@ -3,6 +3,7 @@ using DiNet.CliToolkit.Core;
 using DiNet.CliToolkit.Core.Descriptors;
 using DiNet.CliToolkit.Core.Intrerfaces;
 using System.Reflection;
+using System.Reflection.Metadata;
 using System.Text;
 
 namespace DiNet.CliToolkit.Services.HelpHandler;
@@ -12,6 +13,8 @@ public record HelpCommand : IQuery<bool>;
 public class HelpCommandHandler(
     CommandRouteRegistry registry,
     IRootDescriptorResolver resolver,
+    IObjectDescriptorFactory factory,
+    IComplexTypeClassifier classifier,
     INameFormatter formatter) : IQueryHandler<HelpCommand, bool>
 {
     private const string Indent = "  ";
@@ -39,14 +42,30 @@ public class HelpCommandHandler(
             sb.Append(Indent).AppendLine(FormatParameter(unflagged, includeName: true));
         }
 
-        foreach (var parameter in constructor.Parameters)
+        AppendNestedParameter(sb, descriptor.Type);
+
+        return sb.ToString();
+    }
+
+    private void AppendNestedParameter(StringBuilder sb, Type type)
+    {
+        var descriptor = factory.Create(type);
+
+        foreach (var parameter in descriptor.SingleConstructor.Parameters)
         {
-            sb.Append(Indent)
-              .Append("--").Append(formatter.Format(parameter.Name!)).Append(' ')
-              .AppendLine(FormatParameter(parameter, includeName: false));
+            if(classifier.IsComplex(parameter.ParameterType))
+            {
+                AppendNestedParameter(sb, parameter.ParameterType);
+            }
+            else
+            {
+                sb.Append(Indent)
+                  .Append("--").Append(formatter.Format(parameter.Name!)).Append(' ')
+                  .AppendLine(FormatParameter(parameter, includeName: false));
+            }
         }
 
-        var ctorNames = constructor.Parameters
+        var ctorNames = descriptor.SingleConstructor.Parameters
             .Select(p => p.Name)
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
@@ -54,12 +73,17 @@ public class HelpCommandHandler(
         {
             if (ctorNames.Contains(property.Name)) continue;
 
-            sb.Append(Indent)
-              .Append("--").Append(formatter.Format(property.Name)).Append(' ')
-              .AppendLine(FormatProperty(property));
+            if (classifier.IsComplex(property.PropertyType))
+            {
+                AppendNestedParameter(sb, property.PropertyType);
+            }
+            else
+            {
+                sb.Append(Indent)
+                  .Append("--").Append(formatter.Format(property.Name)).Append(' ')
+                  .AppendLine(FormatProperty(property));
+            }
         }
-
-        return sb.ToString();
     }
 
     private static string FormatParameter(ParameterInfo info, bool includeName)
@@ -71,7 +95,10 @@ public class HelpCommandHandler(
 
     private static string FormatProperty(PropertyInfo info)
     {
-        return $"<{FormatType(info.PropertyType)}>";
+        var isRequired = info.IsDefined(typeof(System.Runtime.CompilerServices.RequiredMemberAttribute), inherit: false);
+
+        var optional = !isRequired ? "(opt)" : string.Empty;
+        return $"<{FormatType(info.PropertyType)}>{optional}";
     }
 
     private static string FormatType(Type type)
