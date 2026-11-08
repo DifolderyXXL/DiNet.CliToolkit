@@ -1,4 +1,5 @@
 ﻿using DiNet.CliToolkit.Abstraction;
+using DiNet.CliToolkit.Core.Attributes;
 using DiNet.CliToolkit.Services;
 using DiNet.CliToolkit.Tests.Models;
 using Microsoft.Extensions.DependencyInjection;
@@ -7,10 +8,24 @@ using Microsoft.Extensions.Hosting;
 namespace DiNet.CliToolkit.Tests.Fixtures;
 
 
-public record TestObject(string RValue) : IQuery<bool>
+public record TestObject(string RValue, int v = 5) : RootBaseQuery
 {
     public Nested Nested { get; set; } = null;
+    [Leaf]
+    public GenericConvertable<string>? Gen { get; set; } = null;
 }
+public abstract record RootBaseQuery : IQuery<bool>
+{
+    [NotFlagged]
+    public string? RootPath { get; set; } = null;
+    public string? Ignore { get; set; } = null;
+    [Leaf]
+    public GenericConvertable<string>? OnlyExtensions { get; set; } = null;
+
+    public string Root => RootPath ?? Environment.CurrentDirectory;
+}
+
+
 public class TestHandler : IQueryHandler<TestObject, bool>
 {
     public async Task<bool> Handle(TestObject query, CancellationToken ct)

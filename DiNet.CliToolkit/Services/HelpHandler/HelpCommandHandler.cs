@@ -1,7 +1,9 @@
 ﻿using DiNet.CliToolkit.Abstraction;
 using DiNet.CliToolkit.Core;
+using DiNet.CliToolkit.Core.Attributes;
 using DiNet.CliToolkit.Core.Descriptors;
 using DiNet.CliToolkit.Core.Intrerfaces;
+using System.Data.Common;
 using System.Reflection;
 using System.Reflection.Metadata;
 using System.Text;
@@ -53,7 +55,9 @@ public class HelpCommandHandler(
 
         foreach (var parameter in descriptor.SingleConstructor.Parameters)
         {
-            if(classifier.IsComplex(parameter.ParameterType))
+            bool isPropertyEndValue = parameter.IsDefined(typeof(LeafAttribute), inherit: false);
+
+            if (!isPropertyEndValue && classifier.IsComplex(parameter.ParameterType))
             {
                 AppendNestedParameter(sb, parameter.ParameterType);
             }
@@ -73,7 +77,9 @@ public class HelpCommandHandler(
         {
             if (ctorNames.Contains(property.Name)) continue;
 
-            if (classifier.IsComplex(property.PropertyType))
+            bool isPropertyEndValue = property.IsDefined(typeof(LeafAttribute), inherit: false);
+
+            if (!isPropertyEndValue && classifier.IsComplex(property.PropertyType))
             {
                 AppendNestedParameter(sb, property.PropertyType);
             }

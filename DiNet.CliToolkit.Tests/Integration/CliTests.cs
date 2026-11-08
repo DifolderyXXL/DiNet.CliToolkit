@@ -30,5 +30,6 @@ public class CliTests : IClassFixture<CliIntegrationFixture>
         // Assert
         Assert.DoesNotContain("nested", output);
         Assert.Contains("test", output);
+        Assert.Contains("gen", output);
     }
 }
